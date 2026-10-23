@@ -61,12 +61,19 @@ def connect(c,data_dir,password=None):
         for host,keys in pinned.items():
             for kind,key in keys.items():client.get_host_keys().add(host,kind,key)
     client.set_missing_host_key_policy(paramiko.RejectPolicy())
-    try:client.connect(c.addresses[0],username=c.username,password=password or None,pkey=pairing_key(data_dir),timeout=6,auth_timeout=10,banner_timeout=8,allow_agent=True,look_for_keys=True)
-    except paramiko.AuthenticationException:
-        client.close();raise RuntimeError('SSH sign-in failed. Check the username, then use Set up connection to authorize this app with the laptop’s password or an existing SSH key.')
-    except Exception:
-        client.close();raise
-    return client
+    errors=[]
+    for address in c.addresses:
+        try:
+            client.connect(address,username=c.username,password=password or None,pkey=pairing_key(data_dir),timeout=6,auth_timeout=10,banner_timeout=8,allow_agent=True,look_for_keys=True)
+            return client
+        except paramiko.AuthenticationException:
+            client.close();raise RuntimeError('SSH sign-in failed. Check the username, then use Set up connection to authorize this app with the laptop’s password or an existing SSH key.')
+        except paramiko.BadHostKeyException:
+            client.close();raise RuntimeError('This computer’s SSH host key changed. Verify its fingerprint through Set up connection before reconnecting.')
+        except Exception as e:
+            errors.append(str(e));client.close()
+    raise RuntimeError('No trusted address was reachable. Use Set up connection to verify this computer.\n'+errors[-1])
+
 
 def execute(client,script):
     stdin,stdout,stderr=client.exec_command('python3 -',timeout=45)
