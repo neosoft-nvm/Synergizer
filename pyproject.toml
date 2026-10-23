@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "synergizer"
+version = "0.1.0"
+description = "A visual desk manager and recovery companion for Synergy 3"
+requires-python = ">=3.12"
+dependencies = ["PySide6==6.11.2", "paramiko>=3.5,<5"]
+license = {text = "MIT"}
+
+[project.gui-scripts]
+synergizer = "synergizer.app:main"
+
+[tool.setuptools.package-data]
+synergizer = ["assets/*"]
+
+[tool.setuptools.packages.find]
+include = ["synergizer*"]

@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+*.spec
+!packaging/Synergizer.spec
+.pytest_cache/
