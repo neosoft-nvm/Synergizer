@@ -21,8 +21,9 @@ Download a package from this repository's **Actions → Build desktop packages**
 The portable `Synergizer.exe` also runs directly. Unsigned preview builds may
 show Windows' normal reputation prompt.
 
-**Linux:** extract the archive, open the Synergizer folder and run `install.sh`.
-This installs per-user, without root, and creates desktop/application-menu launchers.
+**Linux:** extract the archive, open its Synergizer folder, and launch the
+`Synergizer` executable. In Settings, click **Install desktop and menu shortcuts**.
+This installs per-user, without root. The included `install.sh` is an alternative.
 Synergizer can also run directly from the extracted folder. Linux packages from
 GitHub build on Ubuntu 22.04; a locally built package requires a compatible host.
 

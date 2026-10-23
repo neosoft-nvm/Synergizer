@@ -5,6 +5,17 @@ subprocess.run([sys.executable,'-m','PyInstaller','--noconfirm','--clean',str(RO
 bundle=ROOT/'dist/Synergizer'
 shutil.copy2(ROOT/'README.md',bundle/'README.md');shutil.copy2(ROOT/'LICENSE',bundle/'LICENSE.txt')
 licenses=bundle/'THIRD-PARTY-LICENSES';licenses.mkdir(exist_ok=True)
+shutil.copytree(ROOT/'packaging/licenses',licenses,dirs_exist_ok=True)
+import importlib.metadata
+for package in ['PySide6','PySide6_Essentials','shiboken6','paramiko','cryptography','bcrypt','PyNaCl','cffi']:
+ try:
+  distribution=importlib.metadata.distribution(package)
+  for item in distribution.files or []:
+   if any(word in str(item).lower() for word in ('license','copying','notice')):
+    origin=pathlib.Path(distribution.locate_file(item))
+    if origin.is_file():
+     target=licenses/package;target.mkdir(exist_ok=True);shutil.copy2(origin,target/origin.name)
+ except importlib.metadata.PackageNotFoundError:pass
 import PySide6
 qtpath=pathlib.Path(PySide6.__file__).parent
 for origin in [qtpath/'licenses',qtpath/'Qt/licenses',pathlib.Path('/usr/share/licenses/python3-pyside6'),pathlib.Path('/usr/share/licenses/qt6-qtbase')]:
