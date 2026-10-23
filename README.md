@@ -2,81 +2,66 @@
 
 **Your desk. Seamlessly connected.**
 
-A native Windows/Linux companion for Synergy 3: visually arrange computers,
-keep a dual-boot desktop in one place, reconnect sharing, and undo layout changes.
+A native Windows/Linux companion for Synergy 3. Arrange computers visually,
+keep a dual-boot desktop in one place, reconnect sharing, and restore saved layouts.
+**Version 0.1.0 is a preview.** Synergy 3 must be installed and activated separately
+on every computer; its engine and your license are not bundled.
 
-## What you can do
-- Drag computers left, right, above, or below each other on a snapping desk canvas.
-- Add, rename, remove, discover, and configure receiving Linux computers over trusted SSH.
-- Import your existing Synergy layout; preview and apply changes with an automatic backup.
-- Keep a common desk profile on a drive accessible to both Windows and Linux.
-- View connection status, reconnect clients, inspect logs, and restore a saved desk.
-- Choose system/light/dark appearance. Desktop and application-menu shortcuts are included.
+## Start here
 
-## Install and share
-Download a package from this repository's **Actions → Build desktop packages** run.
+- [User guide](docs/USER_GUIDE.md): install, dual boot, move/add/remove computers.
+- [Troubleshooting](docs/TROUBLESHOOTING.md): reconnect, suspend/resume, backups.
+- [Development](docs/DEVELOPMENT.md): architecture, storage, tests and packaging.
+- [Verification status](docs/STATUS.md): tested behavior and remaining checks.
+- [Changelog](CHANGELOG.md) and [third-party notices](THIRD_PARTY.md).
 
-**Windows:** extract the ZIP, open its Synergizer folder, and double-click
-`Install Synergizer.cmd`. A desktop and Start menu shortcut will be created.
-The portable `Synergizer.exe` also runs directly. Unsigned preview builds may
-show Windows' normal reputation prompt.
+## Install
 
-**Linux:** extract the archive, open its Synergizer folder, and launch the
-`Synergizer` executable. In Settings, click **Install desktop and menu shortcuts**.
-This installs per-user, without root. The included `install.sh` is an alternative.
-Synergizer can also run directly from the extracted folder. Linux packages from
-GitHub build on Ubuntu 22.04; a locally built package requires a compatible host.
+Preview packages are available to signed-in GitHub users from a successful
+[Build desktop packages run](https://github.com/neosoft-nvm/Synergizer/actions/workflows/build.yml).
+Download the appropriate workflow artifact and extract its enclosed package.
+A v0.1.0 release has been prepared as an **unpublished draft**; it is not yet a
+public release download. Packages can also be shared directly with recipients.
 
-Synergy 3 must be installed and activated separately on every computer. Its paid
-engine and your license are **not** included. Remote Linux setup requires Python 3,
-a reachable SSH service, and a verified SSH host key. The pairing wizard accepts
-a password once or uses an existing SSH key, then authorizes an app-specific key.
-Windows protects that private key with DPAPI; Linux stores it in a private user folder. Windows receivers can be
-configured locally through Settings → Set up sharing. Native Windows remote setup
-is not available in this preview.
+**Windows:** extract `Synergizer-0.1.0-Windows-x64.zip`, open its `Synergizer`
+folder, and run `Synergizer.exe`. In **Settings**, choose **Install desktop and
+menu shortcuts**, then open the installed shortcut. `Install Synergizer.cmd`
+is an alternative. Unsigned preview builds may show a Windows reputation prompt.
 
-## Dual boot
-Choose the same shared folder from Settings on Windows and Linux. Use a drive
-both operating systems can read and write. Synergizer keeps passwords, private
-keys, certificates, and licenses out of that shared profile. Select the same
-stable desktop screen name in both operating systems. Open Synergizer and choose
-the shared folder on **both** OSs before pairing new laptops: this registers each
-OS's public TLS fingerprint so clients can trust either boot. Private keys stay
-on their original operating system. The shared layout is
-loaded before sharing starts when configured through Synergizer.
+**Linux:** extract `Synergizer-0.1.0-Linux-x64.tar.gz`, open its `Synergizer`
+folder, and launch `Synergizer`. Choose **Settings → Install desktop and menu
+shortcuts**, then open the installed shortcut. `install.sh` is an alternative.
+Installation is per-user; some desktops require marking the launcher trusted.
 
-The existing fixed-role setup created before this app is automatically imported.
-On Linux, installing the application adds a pre-start shared-layout sync hook.
-On Windows, an existing fixed desktop task uses the layout in its shared folder;
-choose that folder in Settings. Apply changes updates that layout immediately.
+Python and Qt are included in packages. Linux CI builds on Ubuntu 22.04;
+compatibility still depends on the target's system libraries and desktop session.
+Windows packages are built on Windows. See [verification status](docs/STATUS.md)
+before treating build success as device compatibility.
 
-## Current boundaries
-The layout editor supports a connected grid with full-edge links. Complex
-partial-edge, wrapping, or alias layouts are refused rather than silently lost.
-Each tile is a computer. Arrange individual monitors in your OS display settings.
-Discovery scans at most a local /24 network for SSH candidates; discovery is not
-pairing. An unknown host key or missing key authorization is surfaced, not bypassed.
-The app does not wake a suspended computer or repair a frozen operating system.
+## What it does
 
-Receiving clients configured through Synergizer have process supervision and
-recovery after 90 seconds disconnected. Your pre-existing recovery timer and tray
-control remain in place when you only edit a desktop layout. Offline receiving
-computers keep retrying. Layout Apply does not require every laptop to be online.
+- Drag computer tiles onto a connected grid; preview, apply, and restore layouts.
+- Keep one desktop screen name across Windows/Linux, using a shared writable drive.
+- Discover SSH candidates and configure receiving Linux computers through trusted SSH.
+- Show connection status, reconnect sharing, and export sharing logs.
+- Offer system, light and dark themes, tray controls, and desktop/menu shortcuts.
 
-## Development
-Python 3.12+ and PySide6 are required.
+Each tile represents **one computer**, not an individual physical monitor. Arrange
+individual displays using Windows/Linux display settings. The editor supports
+full-edge grid links; partial-edge, wrapping and alias layouts are refused.
+Sharing starts after sign-in. Synergizer cannot wake a sleeping computer or fix an
+OS freeze. Remote Linux setup requires Python 3, SSH, a logged-in desktop session,
+and the expected Synergy installation paths. Remote Windows setup is not included.
+
+## Develop
+
+Python 3.12+:
 
 ```sh
 python -m pip install -e .
 python -m synergizer
-python -m unittest discover -s tests -v
-python -m pip install pyinstaller==6.22.3
-python scripts/build.py
 ```
 
-Build Windows packages on Windows and Linux packages on Linux. The GitHub Actions
-workflow builds both and uploads downloadable archives with SHA-256 checksums.
-Each package bundles Python and Qt, so recipients do not need to install Python.
-Synergizer's code is MIT licensed. Bundled Qt/PySide libraries retain their LGPL
-licenses and notices, included by the packaging tool. Synergizer is independent
-of and not endorsed by Symless.
+See [development instructions](docs/DEVELOPMENT.md) for tests and packages.
+Synergizer is MIT licensed. Bundled components retain their own licenses.
+This project is independent of and not endorsed by Symless.

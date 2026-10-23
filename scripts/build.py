@@ -4,6 +4,9 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]
 subprocess.run([sys.executable,'-m','PyInstaller','--noconfirm','--clean',str(ROOT/'packaging/Synergizer.spec')],cwd=ROOT,check=True)
 bundle=ROOT/'dist/Synergizer'
 shutil.copy2(ROOT/'README.md',bundle/'README.md');shutil.copy2(ROOT/'LICENSE',bundle/'LICENSE.txt')
+shutil.copy2(ROOT/'CHANGELOG.md',bundle/'CHANGELOG.md')
+shutil.copy2(ROOT/'THIRD_PARTY.md',bundle/'THIRD_PARTY.md')
+shutil.copytree(ROOT/'docs',bundle/'docs',dirs_exist_ok=True)
 licenses=bundle/'THIRD-PARTY-LICENSES';licenses.mkdir(exist_ok=True)
 shutil.copytree(ROOT/'packaging/licenses',licenses,dirs_exist_ok=True)
 import importlib.metadata

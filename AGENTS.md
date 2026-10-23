@@ -24,3 +24,10 @@ Keep source/render/packaged/native-device verification boundaries explicit.
 
 The old background-only setup is imported automatically. Existing recovery/tray
 helpers must remain intact when merely changing the desktop layout.
+
+Documentation:
+- Keep README.md, docs/USER_GUIDE.md, docs/TROUBLESHOOTING.md,
+  docs/DEVELOPMENT.md, docs/STATUS.md and CHANGELOG.md aligned with behavior.
+- Record device acceptance separately from CI and process/socket observations.
+- Keep personal deployment details out of public docs. Include guides/notices in
+  packages; never replace release archives without updating checksums/build records.

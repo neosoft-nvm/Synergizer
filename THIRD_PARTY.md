@@ -3,7 +3,8 @@
 Synergizer includes Python, Qt/PySide6, Paramiko, Cryptography, PyNaCl, and their
 runtime dependencies in its portable packages. Each retains its own license.
 PyInstaller preserves Python package metadata/licenses when supplied by upstream
-hooks. Qt/PySide license texts are copied into THIRD-PARTY-LICENSES when available.
+hooks. Tracked Qt/PySide license texts are always copied into THIRD-PARTY-LICENSES.
+The build also collects license files available in installed distributions.
 
 PySide6/Qt are dynamically linked; the unpacked `_internal` directory contains
 replaceable libraries, not a statically linked proprietary Qt build. Upstream:

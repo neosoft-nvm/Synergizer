@@ -2,7 +2,10 @@
 import os,pathlib,subprocess,tempfile
 root=pathlib.Path(__file__).resolve().parents[1]
 exe=root/'dist/Synergizer'/('Synergizer.exe' if os.name=='nt' else 'Synergizer')
-licenses=root/'dist/Synergizer/THIRD-PARTY-LICENSES'
+bundle=root/'dist/Synergizer'
+for name in ('README.md','CHANGELOG.md','THIRD_PARTY.md','docs/USER_GUIDE.md','docs/TROUBLESHOOTING.md','docs/DEVELOPMENT.md','docs/STATUS.md'):
+ assert (bundle/name).is_file(),'Packaged documentation is missing: '+name
+licenses=bundle/'THIRD-PARTY-LICENSES'
 assert (licenses/'Qt/LGPL-3.0-only.txt').exists(),'Qt license notice is missing'
 with tempfile.TemporaryDirectory() as t:
  env=dict(os.environ,QT_QPA_PLATFORM='offscreen');image=pathlib.Path(t)/'smoke.png'
