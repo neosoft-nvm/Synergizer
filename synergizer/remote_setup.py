@@ -3,7 +3,7 @@ from pathlib import Path
 
 def remote_script(screen,addresses,fingerprint):
     supervisor=(Path(__file__).with_name('supervisor.py')).read_text()
-    payload=json.dumps({'screen':screen,'addresses':addresses,'fingerprint':fingerprint,'supervisor':supervisor})
+    payload=json.dumps({'screen':screen,'addresses':addresses,'fingerprints':fingerprint if isinstance(fingerprint,list) else [fingerprint],'supervisor':supervisor})
     return 'PAYLOAD='+repr(payload)+'\n'+r'''
 import json, pathlib, os, configparser, shutil, datetime, subprocess, signal, time, sys
 p=json.loads(PAYLOAD);h=pathlib.Path.home();original=h/'.config/Synergy';custom=h/'.config/Synergy-DualBoot'
@@ -19,8 +19,9 @@ custom.mkdir(parents=True,exist_ok=True);custom.chmod(0o700)
 if not (custom/'tls').exists() and (original/'tls').exists():shutil.copytree(original/'tls',custom/'tls')
 (custom/'tls').mkdir(exist_ok=True)
 trust=custom/'tls/trusted-servers';lines=trust.read_text().splitlines() if trust.exists() else []
-entry='v2:sha256:'+p['fingerprint']
-if entry not in lines:lines.append(entry)
+for fingerprint in p['fingerprints']:
+ entry='v2:sha256:'+fingerprint
+ if entry not in lines:lines.append(entry)
 trust.write_text('\n'.join(lines)+'\n')
 c['core']['computerName']=p['screen'];c['core']['coreMode']='1';c['core']['processMode']='1'
 c['client']['remoteHost']='"'+','.join(p['addresses'])+'"';c['client']['dynamicConnectionRetry']='false'

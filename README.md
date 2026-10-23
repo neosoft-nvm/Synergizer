@@ -38,7 +38,10 @@ is not available in this preview.
 Choose the same shared folder from Settings on Windows and Linux. Use a drive
 both operating systems can read and write. Synergizer keeps passwords, private
 keys, certificates, and licenses out of that shared profile. Select the same
-stable desktop screen name in both operating systems. The shared layout is
+stable desktop screen name in both operating systems. Open Synergizer and choose
+the shared folder on **both** OSs before pairing new laptops: this registers each
+OS's public TLS fingerprint so clients can trust either boot. Private keys stay
+on their original operating system. The shared layout is
 loaded before sharing starts when configured through Synergizer.
 
 The existing fixed-role setup created before this app is automatically imported.

@@ -30,3 +30,15 @@ class Transactions(unittest.TestCase):
   shared=self.root/'shared';shared.mkdir();self.b.settings['shared_folder']=str(shared);(shared/'desk.json').write_text('old-profile');(shared/'layout.conf').write_text('old-shared-layout');self.b.restart=lambda:(_ for _ in ()).throw(RuntimeError('failure'))
   with self.assertRaises(RuntimeError):self.b.apply(self.d)
   self.assertEqual((shared/'desk.json').read_text(),'old-profile');self.assertEqual((shared/'layout.conf').read_text(),'old-shared-layout')
+
+ def test_dual_boot_public_identities(self):
+  shared=self.root/'shared';shared.mkdir();self.b.settings['shared_folder']=str(shared)
+  (shared/'server-identities.json').write_text(json.dumps({'schema':1,'servers':{'OtherOS':'b'*64}}))
+  self.b.local_fingerprint=lambda:'a'*64
+  self.assertEqual(set(self.b.publish_identity()),{'a'*64,'b'*64})
+  self.assertNotIn('PRIVATE KEY',(shared/'server-identities.json').read_text())
+ def test_invalid_shared_identity_refused(self):
+  shared=self.root/'shared';shared.mkdir();self.b.settings['shared_folder']=str(shared)
+  (shared/'server-identities.json').write_text(json.dumps({'schema':1,'servers':{'OtherOS':'invalid'}}))
+  self.b.local_fingerprint=lambda:'a'*64
+  with self.assertRaises(ValueError):self.b.publish_identity()

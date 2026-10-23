@@ -128,6 +128,9 @@ class Backend:
         return snapshot
     def sync(self):
         shared=self.shared()
+        if shared and shared.is_dir():
+            try:self.publish_identity()
+            except (OSError,ValueError,configparser.Error):pass
         if shared and (shared/'desk.json').exists():
             desk=Desk.from_dict(json.loads((shared/'desk.json').read_text()));text=desk.compile()
             if not self.layout.exists() or self.layout.read_text()!=text:atomic(self.layout,text)
@@ -212,18 +215,32 @@ Start-ScheduledTask -InputObject $t"""
         with connect(computer,self.data) as client:return execute(client,script)
     def reconnect_remote(self,c):
         return self.ssh(c,"import os,subprocess\nos.environ['XDG_RUNTIME_DIR']=f'/run/user/{os.getuid()}'\nos.environ['DBUS_SESSION_BUS_ADDRESS']=f'unix:path={os.environ[\"XDG_RUNTIME_DIR\"]}/bus'\nsubprocess.run(['systemctl','--user','restart','synergy-dualboot.service'],check=True)\nprint('Client restarted.')\n")
+    def local_fingerprint(self):
+        import ssl
+        cfg=config(self.custom/'core.conf')
+        if not cfg.has_section('security'):cfg=config(self.original/'synergy-core.conf')
+        cert=pathlib.Path(cfg.get('security','certificate').strip('"'))
+        match=re.search(r'-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----',cert.read_text(),re.S)
+        if not match:raise ValueError('The desktop certificate could not be read.')
+        return hashlib.sha256(ssl.PEM_cert_to_DER_cert(match.group())).hexdigest()
+    def publish_identity(self):
+        fingerprint=self.local_fingerprint();shared=self.shared()
+        identities={}
+        if shared and shared.is_dir():
+            path=shared/'server-identities.json'
+            if path.exists():identities=json.loads(path.read_text()).get('servers',{})
+            identities['Windows' if WINDOWS else 'Linux']=fingerprint
+            if any(not re.fullmatch(r'[0-9a-f]{64}',v) for v in identities.values()):raise ValueError('The shared server fingerprint file contains an invalid identity.')
+            atomic(path,json.dumps({'schema':1,'servers':identities},indent=2))
+        return list(dict.fromkeys([fingerprint,*identities.values()]))
     def configure_remote(self,c):
         from .remote_setup import remote_script
-        cfg=config(self.custom/'core.conf');cert=pathlib.Path(cfg.get('security','certificate').strip('"'))
-        import ssl
-        pem=cert.read_text();match=re.search(r'-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----',pem,re.S)
-        if not match:raise ValueError('The desktop certificate could not be read.')
-        fingerprint=hashlib.sha256(ssl.PEM_cert_to_DER_cert(match.group())).hexdigest()
+        fingerprints=self.publish_identity()
         addresses=self.settings.get('server_addresses',[])
         if not addresses:
             addresses=[a for a in socket.gethostbyname_ex(socket.gethostname())[2] if not a.startswith('127.')]
         if not addresses:raise ValueError('Add the desktop’s LAN/Tailscale addresses in Settings first.')
-        return self.ssh(c,remote_script(c.screen,addresses,fingerprint))
+        return self.ssh(c,remote_script(c.screen,addresses,fingerprints))
     def export_profile(self,desk,path):atomic(path,json.dumps(desk.to_dict(),indent=2))
     def setup_local(self,role,screen,server_addresses,desk=None):
         from .setup import setup

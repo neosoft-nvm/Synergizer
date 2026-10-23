@@ -237,7 +237,7 @@ QDialogButtonBox QPushButton {{min-width:75px;}}
         if (p/'desk.json').exists() and self.confirm('Use the desk saved here?','This shared folder already contains a desk profile. Load it into the editor?'):
             try:self.desk=Desk.from_dict(json.loads((p/'desk.json').read_text()));self.mark_dirty();self.render_desk()
             except Exception as e:self.message(str(e));return
-        self.backend.settings['shared_folder']=path;self.backend.save_settings();self.shared_field.setText(path);self.sync_badge.setText('●  Shared desk');self.message('Shared folder selected. Apply your desk to save it here. Select this same folder in the other OS too.')
+        self.backend.settings['shared_folder']=path;self.backend.save_settings();self.shared_field.setText(path);self.sync_badge.setText('●  Shared desk');self.work(self.backend.publish_identity,lambda _:None);self.message('Shared folder selected. Apply your desk to save it here. Select this same folder in the other OS too.')
     def save_addresses(self):
         self.backend.settings['server_addresses']=[a.strip() for a in self.server_field.text().split(',') if a.strip()];self.backend.save_settings();self.message('Desktop addresses saved for guided client setup.')
     def render_desk(self):
